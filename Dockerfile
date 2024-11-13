@@ -1,20 +1,21 @@
-FROM nvidia/cuda:12.2.0-base-ubuntu22.04
-
-COPY . /app
+FROM nvidia/cuda:12.6.2-base-ubuntu24.04
 
 RUN apt-get update && \
-    apt-get install -y --allow-unauthenticated --no-install-recommends \
-    wget \
-    git \
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --allow-unauthenticated --no-install-recommends nvidia-open wget git && \
+    apt-get autoremove -y && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV HOME "/root"
+
 ENV CONDA_DIR "${HOME}/miniconda"
+
 ENV PATH="$CONDA_DIR/bin":$PATH
+
 ENV CONDA_AUTO_UPDATE_CONDA=false
+
 ENV PIP_DOWNLOAD_CACHE="$HOME/.pip/cache"
+
 ENV TORTOISE_MODELS_DIR="$HOME/tortoise-tts/build/lib/tortoise/models"
 
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda3.sh \
@@ -26,9 +27,16 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 # --login option used to source bashrc (thus activating conda env) at every RUN statement
 SHELL ["/bin/bash", "--login", "-c"]
 
-RUN conda create --name tortoise python=3.9 numba inflect -y \
-    && conda activate tortoise \
-    && conda install --yes pytorch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 pytorch-cuda=12.1 -c pytorch -c nvidia \
-    && conda install --yes transformers=4.31.0 \
-    && cd /app \
-    && python setup.py install
+WORKDIR /tortoise
+
+COPY . ./
+
+RUN conda create --yes --name tortoise python=3.10 numba inflect && \
+    conda activate tortoise && \
+    conda install --yes pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia && \
+    conda install --yes transformers=4.29.2 && \
+    conda install --yes spacy && \
+    cd /tortoise && \
+    pip install .
+
+CMD ["conda", "run", "-n", "tortoise", "python", "tortoise/server.py"]
