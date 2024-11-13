@@ -2,11 +2,11 @@ name: Docker build
 
 on:
   push:
-    branches:
-      - "**"
+    tags:
+      - "v*"
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,3 +14,15 @@ jobs:
 
       - name: Docker build
         run: docker build -t tortoise .
+
+      # - name: Publish to GCR
+      #   run: |
+      #     echo ${{ secrets.GCP_KEY_FILE }} > key.json
+      #     docker tag tortoise gcr.io/$PROJECT_ID/tortoise:$GITHUB_SHA
+      #     docker push gcr.io/$PROJECT_ID/tortoise:$GITHUB_SHA
+      #   env:
+      #     PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      #     GOOGLE_APPLICATION_CREDENTIALS: key.json
+      #     GCP_KEY_FILE: ${{ secrets.GCP_KEY_FILE }}
+      #     GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      #   if: startsWith(github.ref, 'refs/tags/v')
