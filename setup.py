@@ -29,13 +29,18 @@ setuptools.setup(
         'librosa',
         'transformers==4.31.0',
         'tokenizers',
-        'scipy==1.13.1'
+        'scipy==1.13.1',
+        'spacy',
+        'flask',
         # 'deepspeed==0.8.3',
     ],
+    extras_require={
+        "nlp": ["en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0.tar.gz"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.10",
 )
